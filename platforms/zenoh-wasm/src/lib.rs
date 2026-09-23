@@ -23,7 +23,7 @@ pub enum WasmLinkRx<'link> {
     Ws(ws::WasmWsLinkRx<'link>),
 }
 
-impl ZLinkManager for WasmLinkManager {
+impl<'link> ZLinkManager<'link> for WasmLinkManager {
     type Link<'a>
         = WasmLink
     where

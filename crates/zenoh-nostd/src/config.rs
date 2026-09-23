@@ -8,7 +8,7 @@ use crate::{
 
 pub trait ZSessionConfig: Sized {
     type Buff: AsMut<[u8]> + AsRef<[u8]> + Clone;
-    type LinkManager: ZLinkManager;
+    type LinkManager: ZLinkManager<'static>;
 
     type SubCallbacks<'res>: ZCallbacks<'res, SampleRef>;
     type GetCallbacks<'res>: ZCallbacks<'res, GetResponseRef>;
@@ -23,7 +23,7 @@ pub trait ZSessionConfig: Sized {
 #[allow(dead_code)]
 pub trait ZBrokerConfig {
     type Buff: AsMut<[u8]> + AsRef<[u8]> + Clone;
-    type LinkManager: ZLinkManager;
+    type LinkManager: ZLinkManager<'static>;
 
     fn transports(&self) -> &TransportLinkManager<Self::LinkManager>;
     fn buff(&self) -> Self::Buff;

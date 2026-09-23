@@ -55,7 +55,7 @@ pub struct Session<'res, Config>
 where
     Config: ZSessionConfig,
 {
-    driver: Driver<'res, <Config::LinkManager as ZLinkManager>::Link<'res>, Config::Buff>,
+    driver: Driver<'res, 'static, <Config::LinkManager as ZLinkManager<'static>>::Link<'res>, Config::Buff>,
     state: Mutex<NoopRawMutex, SessionState<'res, Config>>,
 }
 
@@ -65,7 +65,7 @@ where
 {
     pub fn new(
         transport: &'res mut TransportLink<
-            <Config::LinkManager as ZLinkManager>::Link<'res>,
+            <Config::LinkManager as ZLinkManager<'static>>::Link<'res>,
             Config::Buff,
         >,
     ) -> Self {

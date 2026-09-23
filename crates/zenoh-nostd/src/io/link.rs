@@ -24,20 +24,20 @@ pub trait ZLinkRx: ZLinkInfo {
     ) -> impl Future<Output = core::result::Result<(), zenoh_proto::LinkError>>;
 }
 
-pub trait ZLink: ZLinkInfo + ZLinkTx + ZLinkRx {
-    type Tx<'link>: ZLinkTx + ZLinkInfo
+pub trait ZLink<'link>: ZLinkInfo + ZLinkTx + ZLinkRx {
+    type Tx<'buf>: ZLinkTx + ZLinkInfo
     where
-        Self: 'link;
+        Self: 'buf;
 
-    type Rx<'link>: ZLinkRx + ZLinkInfo
+    type Rx<'buf>: ZLinkRx + ZLinkInfo
     where
-        Self: 'link;
+        Self: 'buf;
 
     fn split(&mut self) -> (Self::Tx<'_>, Self::Rx<'_>);
 }
 
-pub trait ZLinkManager {
-    type Link<'a>: ZLink
+pub trait ZLinkManager<'link> {
+    type Link<'a>: ZLink<'link>
     where
         Self: 'a;
 
@@ -185,16 +185,18 @@ impl<Rx: embedded_io_async::Read> ZLinkRx for EmbeddedIOLinkRx<'_, Rx> {
     }
 }
 
-impl<Tx: embedded_io_async::Write, Rx: embedded_io_async::Read> ZLink for EmbeddedIOLink<Tx, Rx> {
-    type Tx<'link>
-        = EmbeddedIOLinkTx<'link, Tx>
+impl<'link, Tx: embedded_io_async::Write, Rx: embedded_io_async::Read> ZLink<'link>
+    for EmbeddedIOLink<Tx, Rx>
+{
+    type Tx<'buf>
+        = EmbeddedIOLinkTx<'buf, Tx>
     where
-        Self: 'link;
+        Self: 'buf;
 
-    type Rx<'link>
-        = EmbeddedIOLinkRx<'link, Rx>
+    type Rx<'buf>
+        = EmbeddedIOLinkRx<'buf, Rx>
     where
-        Self: 'link;
+        Self: 'buf;
 
     fn split(&mut self) -> (Self::Tx<'_>, Self::Rx<'_>) {
         let Self {

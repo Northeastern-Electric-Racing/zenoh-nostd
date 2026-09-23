@@ -7,7 +7,25 @@ pub mod tx;
 
 pub fn derive_zlink(input: &DeriveInput) -> syn::Result<TokenStream> {
     let ident = &input.ident;
-    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+    let (_, ty_generics, _) = input.generics.split_for_impl();
+
+    // `ZLink` is parameterized by the lifetime of the underlying resource
+    // (e.g. a socket's network stack handle), fixed per-impl rather than
+    // re-elided on every `split()` call. If the deriving type already
+    // declares a lifetime of its own (by convention the last one, matching
+    // `Foo<'buf, 'net>`), reuse it directly. Otherwise (no inherent
+    // "stack"-like lifetime, e.g. owned/std sockets) synthesize a fresh one
+    // that's universally quantified.
+    let mut impl_generics_input = input.generics.clone();
+    let zlink_lifetime = match input.generics.lifetimes().last() {
+        Some(lt) => lt.lifetime.clone(),
+        None => {
+            let lt: syn::Lifetime = syn::parse_quote!('__zlink);
+            impl_generics_input.params.insert(0, syn::parse_quote!(#lt));
+            lt
+        }
+    };
+    let (impl_generics, _, where_clause) = impl_generics_input.split_for_impl();
     let (tx_type, rx_type) = extract_zlink_types(input)?;
     let variants = match &input.data {
         syn::Data::Enum(data_enum) => &data_enum.variants,
@@ -31,7 +49,7 @@ pub fn derive_zlink(input: &DeriveInput) -> syn::Result<TokenStream> {
     });
 
     Ok(quote::quote! {
-        impl #impl_generics zenoh_nostd::platform::ZLink for #ident #ty_generics #where_clause {
+        impl #impl_generics zenoh_nostd::platform::ZLink<#zlink_lifetime> for #ident #ty_generics #where_clause {
             type Tx<'link> = #tx_type where Self: 'link;
             type Rx<'link> = #rx_type where Self: 'link;
 

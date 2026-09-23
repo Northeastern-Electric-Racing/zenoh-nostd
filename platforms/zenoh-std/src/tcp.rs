@@ -103,9 +103,9 @@ impl ZLinkRx for StdTcpLinkRx {
     }
 }
 
-impl ZLink for StdTcpLink {
-    type Tx<'a> = StdTcpLinkTx;
-    type Rx<'a> = StdTcpLinkRx;
+impl<'link> ZLink<'link> for StdTcpLink {
+    type Tx<'buf> = StdTcpLinkTx;
+    type Rx<'buf> = StdTcpLinkRx;
 
     fn split(&mut self) -> (Self::Tx<'_>, Self::Rx<'_>) {
         let tx = StdTcpLinkTx {

@@ -14,18 +14,18 @@ use crate::{
     platform::ZLink,
 };
 
-pub struct Driver<'res, Link, Buff>
+pub struct Driver<'res, 'link, Link, Buff>
 where
-    Link: ZLink + 'res,
+    Link: ZLink<'link> + 'res,
 {
     zid: ZenohIdProto,
     tx: Mutex<NoopRawMutex, TransportLinkTx<'res, Link::Tx<'res>, Buff>>,
     rx: Mutex<NoopRawMutex, TransportLinkRx<'res, Link::Rx<'res>, Buff>>,
 }
 
-impl<'res, Link, Buff> Driver<'res, Link, Buff>
+impl<'res, 'link, Link, Buff> Driver<'res, 'link, Link, Buff>
 where
-    Link: ZLink,
+    Link: ZLink<'link>,
 {
     pub fn new(transport: &'res mut TransportLink<Link, Buff>) -> Self {
         let zid = transport.transport().other_zid;
