@@ -13,9 +13,9 @@ version = "0.1.0"
 [dependencies]
 zenoh-nostd = { version = "0.1.0", path = "../../crates/zenoh-nostd" }
 
-embassy-net = { version = "0.8.0", features = [
+embassy-net = { version = "0.9.1", features = [
   "defmt",
-  "dhcpv4",
+  "ipv4",
   "medium-ethernet",
   "tcp",
   "udp",
@@ -23,3 +23,8 @@ embassy-net = { version = "0.8.0", features = [
 
 embedded-io-async = { version = "0.7", features = ["defmt"] }
 getrandom = { version = "0.2", features = ["custom"] }
+
+[patch.crates-io]
+embassy-net = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }

@@ -29,14 +29,14 @@ impl<Link, Buff> TransportLink<Link, Buff> {
         Self { link, transport }
     }
 
-    pub fn split(
-        &mut self,
+    pub fn split<'s, 'link>(
+        &'s mut self,
     ) -> (
-        TransportLinkTx<'_, Link::Tx<'_>, Buff>,
-        TransportLinkRx<'_, Link::Rx<'_>, Buff>,
+        TransportLinkTx<'s, Link::Tx<'s>, Buff>,
+        TransportLinkRx<'s, Link::Rx<'s>, Buff>,
     )
     where
-        Link: ZLink,
+        Link: ZLink<'link>,
     {
         let (link_tx, link_rx) = self.link.split();
         let (transport_tx, transport_rx) = self.transport.split();
@@ -120,7 +120,6 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
         buff: Buff,
     ) -> core::result::Result<TransportLink<EmbeddedIOLink<Tx, Rx>, Buff>, TransportLinkError>
     where
-        LinkManager: ZLinkManager,
         Buff: AsMut<[u8]> + AsRef<[u8]> + Clone,
     {
         let connect = async || {
@@ -145,7 +144,7 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(self.open_timeout.try_into().unwrap(), connect())
+        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
             .await
             .map_err(|_| TransportLinkError::OpenTimeout)?
             .map_err(|e| e.flatten_map::<TransportLinkError>())?;
@@ -159,7 +158,6 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
         buff: Buff,
     ) -> core::result::Result<TransportLink<EmbeddedIOLink<Tx, Rx>, Buff>, TransportLinkError>
     where
-        LinkManager: ZLinkManager,
         Buff: AsMut<[u8]> + AsRef<[u8]> + Clone,
     {
         let connect = async || {
@@ -184,7 +182,7 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(self.open_timeout.try_into().unwrap(), connect())
+        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
             .await
             .map_err(|_| TransportLinkError::OpenTimeout)?
             .map_err(|e| e.flatten_map::<TransportLinkError>())?;
@@ -192,13 +190,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
         Ok(TransportLink::new(link, transport))
     }
 
-    pub async fn connect<Buff>(
+    pub async fn connect<'link, Buff>(
         &self,
         endpoint: Endpoint<'_>,
         buff: Buff,
     ) -> core::result::Result<TransportLink<LinkManager::Link<'_>, Buff>, TransportLinkError>
     where
-        LinkManager: ZLinkManager,
+        LinkManager: ZLinkManager<'link>,
         Buff: AsMut<[u8]> + AsRef<[u8]> + Clone,
     {
         let mut link = self.link_manager.connect(endpoint).await?;
@@ -225,7 +223,7 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(self.open_timeout.try_into().unwrap(), connect())
+        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
             .await
             .map_err(|_| TransportLinkError::OpenTimeout)?
             .map_err(|e| e.flatten_map::<TransportLinkError>())?;
@@ -233,13 +231,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
         Ok(TransportLink::new(link, transport))
     }
 
-    pub async fn listen<Buff>(
+    pub async fn listen<'link, Buff>(
         &self,
         endpoint: Endpoint<'_>,
         buff: Buff,
     ) -> core::result::Result<TransportLink<LinkManager::Link<'_>, Buff>, TransportLinkError>
     where
-        LinkManager: ZLinkManager,
+        LinkManager: ZLinkManager<'link>,
         Buff: AsMut<[u8]> + AsRef<[u8]> + Clone,
     {
         let mut link = self.link_manager.listen(endpoint).await?;
@@ -265,7 +263,7 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(self.open_timeout.try_into().unwrap(), listen())
+        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), listen())
             .await
             .map_err(|_| TransportLinkError::OpenTimeout)?
             .map_err(|e| e.flatten_map::<TransportLinkError>())?;

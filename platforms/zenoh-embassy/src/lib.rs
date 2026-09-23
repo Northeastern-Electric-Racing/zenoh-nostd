@@ -2,9 +2,10 @@
 
 use core::{cell::RefCell, net::SocketAddr};
 use embassy_net::{
-    IpAddress, IpEndpoint, Stack,
+    Stack,
     tcp::TcpSocket,
-    udp::{PacketMetadata, UdpSocket},
+    udp::UdpSocket,
+    wire::{IpAddress, IpEndpoint},
 };
 use zenoh_nostd::platform::*;
 
@@ -51,7 +52,6 @@ impl<T, const MTU: usize, const SOCKS: usize> BufferPoolDrop for BufferPool<T, M
 pub struct EmbassyLinkManager<'net, const MTU: usize, const SOCKS: usize> {
     stack: Stack<'net>,
     buffers: RefCell<BufferPool<u8, MTU, SOCKS>>,
-    metadatas: RefCell<BufferPool<PacketMetadata, MTU, SOCKS>>,
 }
 
 impl<'net, const MTU: usize, const SOCKS: usize> EmbassyLinkManager<'net, MTU, SOCKS> {
@@ -59,7 +59,6 @@ impl<'net, const MTU: usize, const SOCKS: usize> EmbassyLinkManager<'net, MTU, S
         Self {
             stack,
             buffers: RefCell::new(BufferPool::new(0)),
-            metadatas: RefCell::new(BufferPool::new(PacketMetadata::EMPTY)),
         }
     }
 
@@ -75,45 +74,32 @@ impl<'net, const MTU: usize, const SOCKS: usize> EmbassyLinkManager<'net, MTU, S
 
         Some((idx, tx, rx))
     }
-
-    #[allow(clippy::mut_from_ref)]
-    fn allocate_metadatas(&self) -> Option<(usize, &mut [PacketMetadata], &mut [PacketMetadata])> {
-        let idx = self.metadatas.borrow_mut().allocate()?;
-
-        // SAFETY: This pool is simple, I should not have made any mistake. The reference will still be valid
-        // because Tcp borrows EmbassyLinkManager and so EmbassyLinkManager can't be moved.
-        let buffers = unsafe { &mut *self.metadatas.as_ptr() };
-        let tx = &mut buffers.tx_buffers[idx];
-        let rx = &mut buffers.rx_buffers[idx];
-
-        Some((idx, tx, rx))
-    }
 }
 
 #[derive(ZLinkInfo, ZLinkTx, ZLinkRx, ZLink)]
-#[zenoh(ZLink = (EmbassyLinkTx<'link>, EmbassyLinkRx<'link>))]
-pub enum EmbassyLink<'net> {
-    Tcp(tcp::EmbassyTcpLink<'net>),
+#[zenoh(ZLink = (EmbassyLinkTx<'link, 'net>, EmbassyLinkRx<'link, 'net>))]
+pub enum EmbassyLink<'buf, 'net> {
+    Tcp(tcp::EmbassyTcpLink<'buf, 'net>),
     Udp(udp::EmbassyUdpLink<'net>),
 }
 
 #[derive(ZLinkInfo, ZLinkTx)]
-pub enum EmbassyLinkTx<'link> {
-    Tcp(tcp::EmbassyTcpLinkTx<'link>),
-    Udp(udp::EmbassyUdpLinkTx<'link>),
+pub enum EmbassyLinkTx<'link, 'net> {
+    Tcp(tcp::EmbassyTcpLinkTx<'link, 'net>),
+    Udp(udp::EmbassyUdpLinkTx<'link, 'net>),
 }
 
 #[derive(ZLinkInfo, ZLinkRx)]
-pub enum EmbassyLinkRx<'link> {
-    Tcp(tcp::EmbassyTcpLinkRx<'link>),
-    Udp(udp::EmbassyUdpLinkRx<'link>),
+pub enum EmbassyLinkRx<'link, 'net> {
+    Tcp(tcp::EmbassyTcpLinkRx<'link, 'net>),
+    Udp(udp::EmbassyUdpLinkRx<'link, 'net>),
 }
 
-impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
+impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager<'net>
     for EmbassyLinkManager<'net, MTU, SOCKS>
 {
     type Link<'a>
-        = EmbassyLink<'a>
+        = EmbassyLink<'a, 'net>
     where
         Self: 'a;
 
@@ -128,7 +114,8 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
             "tcp" => {
                 let dst_addr = SocketAddr::try_from(address)?;
                 let (idx, tx, rx) = self.allocate_buffers().ok_or(LinkError::CouldNotConnect)?;
-                let mut socket = TcpSocket::new(self.stack, rx, tx);
+                let mut socket =
+                    TcpSocket::new(self.stack, rx, tx).map_err(|_| LinkError::CouldNotConnect)?;
 
                 let address: IpAddress = match dst_addr.ip() {
                     core::net::IpAddr::V4(v4) => IpAddress::Ipv4(v4),
@@ -153,13 +140,9 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
             }
             "udp" => {
                 let dst_addr = SocketAddr::try_from(address)?;
-                let (idx1, tx, rx) = self.allocate_buffers().ok_or(LinkError::CouldNotConnect)?;
 
-                let (idx2, tm, rm) = self
-                    .allocate_metadatas()
-                    .ok_or(LinkError::CouldNotConnect)?;
-
-                let mut socket = UdpSocket::new(self.stack, rm, rx, tm, tx);
+                let mut socket =
+                    UdpSocket::new(self.stack).map_err(|_| LinkError::CouldNotConnect)?;
                 socket.bind(0).map_err(|_| LinkError::CouldNotConnect)?;
 
                 let address: IpAddress = match dst_addr.ip() {
@@ -175,10 +158,6 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
                     socket,
                     ip_endpoint.into(),
                     MTU as u16,
-                    idx1,
-                    &self.buffers,
-                    idx2,
-                    &self.metadatas,
                 )))
             }
             _ => zenoh::zbail!(LinkError::CouldNotParseProtocol),
@@ -196,7 +175,8 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
             "tcp" => {
                 let src_addr = SocketAddr::try_from(address)?;
                 let (idx, tx, rx) = self.allocate_buffers().ok_or(LinkError::CouldNotConnect)?;
-                let mut socket = TcpSocket::new(self.stack, rx, tx);
+                let mut socket =
+                    TcpSocket::new(self.stack, rx, tx).map_err(|_| LinkError::CouldNotConnect)?;
 
                 let address: IpAddress = match src_addr.ip() {
                     core::net::IpAddr::V4(v4) => IpAddress::Ipv4(v4),
@@ -208,7 +188,7 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager
                 let ip_endpoint = IpEndpoint::new(address, src_addr.port());
 
                 socket
-                    .accept(ip_endpoint)
+                    .connect(ip_endpoint)
                     .await
                     .map_err(|_| LinkError::CouldNotConnect)?;
 

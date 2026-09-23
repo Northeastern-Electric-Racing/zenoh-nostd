@@ -37,9 +37,9 @@ dyn-utils = { version = "0.1.1", default-features = false, features = ["macros",
 
 # Embassy (for async/await support)
 embassy-futures = "0.1.2"
-embassy-time = "0.5.0"
-embassy-sync = "0.7.2"
-embassy-executor = "0.9.1"
+embassy-time = "0.5.1"
+embassy-sync = "0.8.0"
+embassy-executor = "0.10.0"
 
 embedded-io-async = "0.7"
 
@@ -86,7 +86,7 @@ std = [
 
     "dep:env_logger",
 
-    "embassy-executor/arch-std",
+    "embassy-executor/platform-std",
     "embassy-executor/executor-thread",
     "embassy-time/std",
 ]
@@ -111,7 +111,7 @@ wasm = [
     "getrandom/js",
     "dep:wasm-bindgen",
 
-    "embassy-executor/arch-wasm",
+    "embassy-executor/platform-wasm",
     "embassy-executor/executor-thread",
     "embassy-time/wasm",
 ]
@@ -132,7 +132,7 @@ zenoh-wasm = { version = "0.1.0", path = "platforms/zenoh-wasm", optional = true
 env_logger = { version = "0.11", optional = true}
 
 getrandom = { version = "0.2.16", features = ["custom"], optional = true }
-embassy-net = { version = "0.8.0", features = ["defmt", "dhcpv4", "medium-ethernet", "tcp", "udp"], optional = true }
+embassy-net = { version = "0.9.1", features = ["defmt", "ipv4", "medium-ethernet", "tcp", "udp"], optional = true }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"], optional = true }
 esp-hal = { version = "1.0.0", features = ["defmt", "esp32s3", "unstable"], optional = true }
 esp-alloc = { version = "0.9.0", features = ["defmt"], optional = true }
@@ -175,3 +175,12 @@ rev = "b43b05d51e18345d228b72c4f12a93e2f51df9d8"
 [patch.crates-io.async-net]
 git = "https://github.com/Hennzau/async-net"
 rev = "f1ade444e88677b31b71ed1b7de0b2778d977aa8"
+
+[patch.crates-io]
+embassy-sync = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-futures = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-net = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-time-driver = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }
+embassy-time-queue-utils = { git = "https://github.com/embassy-rs/embassy", rev = "c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb" }

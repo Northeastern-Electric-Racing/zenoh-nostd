@@ -6,20 +6,20 @@ use zenoh_nostd::platform::*;
 
 use crate::BufferPoolDrop;
 
-pub struct EmbassyTcpLink<'net> {
-    socket: TcpSocket<'net>,
+pub struct EmbassyTcpLink<'buf, 'net> {
+    socket: TcpSocket<'buf, 'net>,
     mtu: u16,
 
     idx: usize,
-    pool: &'net RefCell<dyn BufferPoolDrop>,
+    pool: &'buf RefCell<dyn BufferPoolDrop>,
 }
 
-impl<'net> EmbassyTcpLink<'net> {
+impl<'buf, 'net> EmbassyTcpLink<'buf, 'net> {
     pub(crate) fn new(
-        socket: TcpSocket<'net>,
+        socket: TcpSocket<'buf, 'net>,
         mtu: u16,
         idx: usize,
-        pool: &'net RefCell<dyn BufferPoolDrop>,
+        pool: &'buf RefCell<dyn BufferPoolDrop>,
     ) -> Self {
         Self {
             socket,
@@ -30,23 +30,23 @@ impl<'net> EmbassyTcpLink<'net> {
     }
 }
 
-impl Drop for EmbassyTcpLink<'_> {
+impl Drop for EmbassyTcpLink<'_, '_> {
     fn drop(&mut self) {
         self.pool.borrow_mut().release(self.idx);
     }
 }
 
-pub struct EmbassyTcpLinkTx<'net> {
-    socket: TcpWriter<'net>,
+pub struct EmbassyTcpLinkTx<'buf, 'net> {
+    socket: TcpWriter<'buf, 'net>,
     mtu: u16,
 }
 
-pub struct EmbassyTcpLinkRx<'net> {
-    socket: TcpReader<'net>,
+pub struct EmbassyTcpLinkRx<'buf, 'net> {
+    socket: TcpReader<'buf, 'net>,
     mtu: u16,
 }
 
-impl<'net> ZLinkInfo for EmbassyTcpLink<'net> {
+impl<'buf, 'net> ZLinkInfo for EmbassyTcpLink<'buf, 'net> {
     fn mtu(&self) -> u16 {
         self.mtu
     }
@@ -56,7 +56,7 @@ impl<'net> ZLinkInfo for EmbassyTcpLink<'net> {
     }
 }
 
-impl<'net> ZLinkInfo for EmbassyTcpLinkTx<'net> {
+impl<'buf, 'net> ZLinkInfo for EmbassyTcpLinkTx<'buf, 'net> {
     fn mtu(&self) -> u16 {
         self.mtu
     }
@@ -66,7 +66,7 @@ impl<'net> ZLinkInfo for EmbassyTcpLinkTx<'net> {
     }
 }
 
-impl<'net> ZLinkInfo for EmbassyTcpLinkRx<'net> {
+impl<'buf, 'net> ZLinkInfo for EmbassyTcpLinkRx<'buf, 'net> {
     fn mtu(&self) -> u16 {
         self.mtu
     }
@@ -76,7 +76,7 @@ impl<'net> ZLinkInfo for EmbassyTcpLinkRx<'net> {
     }
 }
 
-impl<'net> ZLinkTx for EmbassyTcpLink<'net> {
+impl<'buf, 'net> ZLinkTx for EmbassyTcpLink<'buf, 'net> {
     async fn write_all(&mut self, buffer: &[u8]) -> core::result::Result<(), LinkError> {
         self.socket
             .write_all(buffer)
@@ -85,7 +85,7 @@ impl<'net> ZLinkTx for EmbassyTcpLink<'net> {
     }
 }
 
-impl<'net> ZLinkTx for EmbassyTcpLinkTx<'net> {
+impl<'buf, 'net> ZLinkTx for EmbassyTcpLinkTx<'buf, 'net> {
     async fn write_all(&mut self, buffer: &[u8]) -> core::result::Result<(), LinkError> {
         self.socket
             .write_all(buffer)
@@ -94,7 +94,7 @@ impl<'net> ZLinkTx for EmbassyTcpLinkTx<'net> {
     }
 }
 
-impl<'net> ZLinkRx for EmbassyTcpLink<'net> {
+impl<'buf, 'net> ZLinkRx for EmbassyTcpLink<'buf, 'net> {
     async fn read(&mut self, buffer: &mut [u8]) -> core::result::Result<usize, LinkError> {
         self.socket
             .read(buffer)
@@ -110,7 +110,7 @@ impl<'net> ZLinkRx for EmbassyTcpLink<'net> {
     }
 }
 
-impl<'net> ZLinkRx for EmbassyTcpLinkRx<'net> {
+impl<'buf, 'net> ZLinkRx for EmbassyTcpLinkRx<'buf, 'net> {
     async fn read(&mut self, buffer: &mut [u8]) -> core::result::Result<usize, LinkError> {
         self.socket
             .read(buffer)
@@ -126,16 +126,16 @@ impl<'net> ZLinkRx for EmbassyTcpLinkRx<'net> {
     }
 }
 
-impl<'net> ZLink for EmbassyTcpLink<'net> {
-    type Tx<'b>
-        = EmbassyTcpLinkTx<'b>
+impl<'buf, 'net> ZLink<'net> for EmbassyTcpLink<'buf, 'net> {
+    type Tx<'a>
+        = EmbassyTcpLinkTx<'a, 'net>
     where
-        Self: 'b;
+        Self: 'a;
 
-    type Rx<'b>
-        = EmbassyTcpLinkRx<'b>
+    type Rx<'a>
+        = EmbassyTcpLinkRx<'a, 'net>
     where
-        Self: 'b;
+        Self: 'a;
 
     fn split(&mut self) -> (Self::Tx<'_>, Self::Rx<'_>) {
         let (rx, tx) = self.socket.split();

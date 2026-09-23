@@ -36,7 +36,7 @@ pub enum StdLinkRx<'link> {
     Ws(ws::StdWsLinkRx<'link>),
 }
 
-impl ZLinkManager for StdLinkManager {
+impl<'link> ZLinkManager<'link> for StdLinkManager {
     type Link<'a>
         = StdLink
     where

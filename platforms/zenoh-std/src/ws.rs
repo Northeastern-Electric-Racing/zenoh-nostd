@@ -188,16 +188,16 @@ impl ZLinkRx for StdWsLinkRx<'_> {
     }
 }
 
-impl ZLink for StdWsLink {
-    type Tx<'link>
-        = StdWsLinkTx<'link>
+impl<'link> ZLink<'link> for StdWsLink {
+    type Tx<'buf>
+        = StdWsLinkTx<'buf>
     where
-        Self: 'link;
+        Self: 'buf;
 
-    type Rx<'link>
-        = StdWsLinkRx<'link>
+    type Rx<'buf>
+        = StdWsLinkRx<'buf>
     where
-        Self: 'link;
+        Self: 'buf;
 
     fn split(&mut self) -> (Self::Tx<'_>, Self::Rx<'_>) {
         let tx = StdWsLinkTx {

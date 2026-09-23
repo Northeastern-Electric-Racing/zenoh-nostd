@@ -20,7 +20,8 @@ where
     }
 }
 
-type Link<'res, Config> = <<Config as ZSessionConfig>::LinkManager as ZLinkManager>::Link<'res>;
+type Link<'res, Config> =
+    <<Config as ZSessionConfig>::LinkManager as ZLinkManager<'static>>::Link<'res>;
 
 #[derive(Default)]
 pub enum ResourcesInner<'res, Config>

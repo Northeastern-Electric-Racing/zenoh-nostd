@@ -12,13 +12,13 @@ use zenoh_proto::{Endpoint, fields::ZenohIdProto};
 use crate::io::transport::{TransportLink, ZTransportLinkTx};
 use crate::{config::ZBrokerConfig, io::driver::Driver, platform::ZLinkManager};
 
-type Link<Config> = <<Config as ZBrokerConfig>::LinkManager as ZLinkManager>::Link<'static>;
+type Link<Config> = <<Config as ZBrokerConfig>::LinkManager as ZLinkManager<'static>>::Link<'static>;
 
 struct StaticDriver<Config>
 where
     Config: ZBrokerConfig + 'static,
 {
-    driver: core::mem::ManuallyDrop<Driver<'static, Link<Config>, Config::Buff>>,
+    driver: core::mem::ManuallyDrop<Driver<'static, 'static, Link<Config>, Config::Buff>>,
     ptr: *mut TransportLink<Link<Config>, Config::Buff>,
 }
 
