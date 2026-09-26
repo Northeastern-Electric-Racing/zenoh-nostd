@@ -84,6 +84,8 @@ jobs:
           --no-default-features --features embedded
           --target thumbv7em-none-eabihf
       - name: Build no_std libs (defmt feature)
+        env:
+          DEFMT_LOG: trace
         run: >
           cargo build
           -p zenoh-proto -p zenoh-sansio -p zenoh-nostd
