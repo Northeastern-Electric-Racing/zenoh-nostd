@@ -1,46 +1,3 @@
-#[cfg(feature = "log")]
-pub use log;
-
-#[cfg(feature = "log")]
-#[macro_export]
-macro_rules! trace {
-    ($s:literal $(, $arg:expr)* $(,)?) => {
-        $crate::logging::log::trace!($s $(, $arg)*)
-    };
-}
-
-#[cfg(feature = "log")]
-#[macro_export]
-macro_rules! debug {
-    ($s:literal $(, $arg:expr)* $(,)?) => {
-        $crate::logging::log::debug!($s $(, $arg)*)
-    };
-}
-
-#[cfg(feature = "log")]
-#[macro_export]
-macro_rules! info {
-    ($s:literal $(, $arg:expr)* $(,)?) => {
-        $crate::logging::log::info!($s $(, $arg)*)
-    };
-}
-
-#[cfg(feature = "log")]
-#[macro_export]
-macro_rules! warn {
-    ($s:literal $(, $arg:expr)* $(,)?) => {
-        $crate::logging::log::warn!($s $(, $arg)*)
-    };
-}
-
-#[cfg(feature = "log")]
-#[macro_export]
-macro_rules! error {
-    ($s:literal $(, $arg:expr)* $(,)?) => {
-        $crate::logging::log::error!($s $(, $arg)*)
-    };
-}
-
 #[cfg(feature = "defmt")]
 pub use defmt;
 
@@ -89,10 +46,53 @@ macro_rules! error {
     }};
 }
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+pub use log;
+
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+#[macro_export]
+macro_rules! trace {
+    ($s:literal $(, $arg:expr)* $(,)?) => {
+        $crate::logging::log::trace!($s $(, $arg)*)
+    };
+}
+
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+#[macro_export]
+macro_rules! debug {
+    ($s:literal $(, $arg:expr)* $(,)?) => {
+        $crate::logging::log::debug!($s $(, $arg)*)
+    };
+}
+
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+#[macro_export]
+macro_rules! info {
+    ($s:literal $(, $arg:expr)* $(,)?) => {
+        $crate::logging::log::info!($s $(, $arg)*)
+    };
+}
+
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+#[macro_export]
+macro_rules! warn {
+    ($s:literal $(, $arg:expr)* $(,)?) => {
+        $crate::logging::log::warn!($s $(, $arg)*)
+    };
+}
+
+#[cfg(all(feature = "log", not(feature = "defmt")))]
+#[macro_export]
+macro_rules! error {
+    ($s:literal $(, $arg:expr)* $(,)?) => {
+        $crate::logging::log::error!($s $(, $arg)*)
+    };
+}
+
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 pub use web_sys::console;
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 #[macro_export]
 macro_rules! trace {
     ($s:literal $(, $arg:expr)* $(,)?) => {
@@ -100,7 +100,7 @@ macro_rules! trace {
     };
 }
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 #[macro_export]
 macro_rules! debug {
     ($s:literal $(, $arg:expr)* $(,)?) => {
@@ -108,7 +108,7 @@ macro_rules! debug {
     };
 }
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 #[macro_export]
 macro_rules! info {
     ($s:literal $(, $arg:expr)* $(,)?) => {
@@ -116,7 +116,7 @@ macro_rules! info {
     };
 }
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 #[macro_export]
 macro_rules! warn {
     ($s:literal $(, $arg:expr)* $(,)?) => {
@@ -124,7 +124,7 @@ macro_rules! warn {
     };
 }
 
-#[cfg(feature = "web_console")]
+#[cfg(all(feature = "web_console", not(any(feature = "log", feature = "defmt"))))]
 #[macro_export]
 macro_rules! error {
     ($s:literal $(, $arg:expr)* $(,)?) => {
