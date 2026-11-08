@@ -155,19 +155,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc2d050bdc5c21e0862a89256ed8029ae6c290a93aecefc73084b3002cdebb01"
 
 [[package]]
-name = "embassy-futures"
-version = "0.1.2"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
-
-[[package]]
 name = "embassy-net"
 version = "0.9.1"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
+source = "git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973#8935e71155895245a52f888a3d43b83d8ccdd973"
 dependencies = [
  "defmt",
  "document-features",
- "embassy-futures 0.1.2 (git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb)",
- "embassy-sync 0.8.0 (git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb)",
+ "embassy-sync 0.8.0 (git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973)",
  "embassy-time",
  "embedded-io-async",
  "heapless 0.9.3",
@@ -192,9 +186,8 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.8.0"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
+source = "git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973#8935e71155895245a52f888a3d43b83d8ccdd973"
 dependencies = [
- "cfg-if",
  "critical-section",
  "embedded-io-async",
  "futures-core",
@@ -205,9 +198,8 @@ dependencies = [
 [[package]]
 name = "embassy-time"
 version = "0.5.1"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
+source = "git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973#8935e71155895245a52f888a3d43b83d8ccdd973"
 dependencies = [
- "cfg-if",
  "critical-section",
  "defmt",
  "document-features",
@@ -221,7 +213,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.2.2"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
+source = "git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973#8935e71155895245a52f888a3d43b83d8ccdd973"
 dependencies = [
  "document-features",
 ]
@@ -539,10 +531,11 @@ checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 [[package]]
 name = "xarxa"
 version = "0.1.0"
-source = "git+https://github.com/embassy-rs/xarxa?rev=14c369bbcbe8ee7167488ac9c9e18be059d83555#14c369bbcbe8ee7167488ac9c9e18be059d83555"
+source = "git+https://github.com/embassy-rs/xarxa?rev=8f6f33b131deb9ff3290e0e01079537e1ed7b2ad#8f6f33b131deb9ff3290e0e01079537e1ed7b2ad"
 dependencies = [
  "bitflags 2.13.2",
  "byteorder",
+ "critical-section",
  "defmt",
  "document-features",
  "heapless 0.9.3",
@@ -552,9 +545,8 @@ dependencies = [
 [[package]]
 name = "xarxa-driver"
 version = "0.1.0"
-source = "git+https://github.com/embassy-rs/xarxa?rev=14c369bbcbe8ee7167488ac9c9e18be059d83555#14c369bbcbe8ee7167488ac9c9e18be059d83555"
+source = "git+https://github.com/embassy-rs/xarxa?rev=8f6f33b131deb9ff3290e0e01079537e1ed7b2ad#8f6f33b131deb9ff3290e0e01079537e1ed7b2ad"
 dependencies = [
- "critical-section",
  "defmt",
  "document-features",
 ]
@@ -583,7 +575,7 @@ name = "zenoh-nostd"
 version = "0.1.0"
 dependencies = [
  "dyn-utils",
- "embassy-futures 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embassy-futures",
  "embassy-sync 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "embassy-time",
  "embedded-io-async",
@@ -614,4 +606,4 @@ dependencies = [
 [[patch.unused]]
 name = "embassy-executor"
 version = "0.10.0"
-source = "git+https://github.com/embassy-rs/embassy?rev=c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb#c0c0419f48c67e160ab0e3a8a93dcaaa2d4e84fb"
+source = "git+https://github.com/embassy-rs/embassy?rev=8935e71155895245a52f888a3d43b83d8ccdd973#8935e71155895245a52f888a3d43b83d8ccdd973"

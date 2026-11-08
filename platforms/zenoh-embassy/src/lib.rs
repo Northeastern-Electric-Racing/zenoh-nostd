@@ -5,7 +5,7 @@ use embassy_net::{
     Stack,
     tcp::TcpSocket,
     udp::UdpSocket,
-    wire::{IpAddress, IpEndpoint},
+    wire::{IpAddr, SocketAddr as IpSocketAddr},
 };
 use zenoh_nostd::platform::*;
 
@@ -117,14 +117,14 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager<'net>
                 let mut socket =
                     TcpSocket::new(self.stack, rx, tx).map_err(|_| LinkError::CouldNotConnect)?;
 
-                let address: IpAddress = match dst_addr.ip() {
-                    core::net::IpAddr::V4(v4) => IpAddress::Ipv4(v4),
+                let address: IpAddr = match dst_addr.ip() {
+                    core::net::IpAddr::V4(v4) => IpAddr::V4(v4),
                     core::net::IpAddr::V6(_) => {
                         zenoh::zbail!(LinkError::CouldNotConnect)
                     }
                 };
 
-                let ip_endpoint = IpEndpoint::new(address, dst_addr.port());
+                let ip_endpoint = IpSocketAddr::new(address, dst_addr.port());
 
                 socket
                     .connect(ip_endpoint)
@@ -143,16 +143,16 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager<'net>
 
                 let mut socket =
                     UdpSocket::new(self.stack).map_err(|_| LinkError::CouldNotConnect)?;
-                socket.bind(0).map_err(|_| LinkError::CouldNotConnect)?;
+                socket.bind(0, 0).map_err(|_| LinkError::CouldNotConnect)?;
 
-                let address: IpAddress = match dst_addr.ip() {
-                    core::net::IpAddr::V4(v4) => IpAddress::Ipv4(v4),
+                let address: IpAddr = match dst_addr.ip() {
+                    core::net::IpAddr::V4(v4) => IpAddr::V4(v4),
                     core::net::IpAddr::V6(_) => {
                         zenoh::zbail!(LinkError::CouldNotConnect)
                     }
                 };
 
-                let ip_endpoint = IpEndpoint::new(address, dst_addr.port());
+                let ip_endpoint = IpSocketAddr::new(address, dst_addr.port());
 
                 Ok(Self::Link::Udp(udp::EmbassyUdpLink::new(
                     socket,
@@ -178,14 +178,14 @@ impl<'net, const MTU: usize, const SOCKS: usize> ZLinkManager<'net>
                 let mut socket =
                     TcpSocket::new(self.stack, rx, tx).map_err(|_| LinkError::CouldNotConnect)?;
 
-                let address: IpAddress = match src_addr.ip() {
-                    core::net::IpAddr::V4(v4) => IpAddress::Ipv4(v4),
+                let address: IpAddr = match src_addr.ip() {
+                    core::net::IpAddr::V4(v4) => IpAddr::V4(v4),
                     core::net::IpAddr::V6(_) => {
                         zenoh::zbail!(LinkError::CouldNotConnect)
                     }
                 };
 
-                let ip_endpoint = IpEndpoint::new(address, src_addr.port());
+                let ip_endpoint = IpSocketAddr::new(address, src_addr.port());
 
                 socket
                     .connect(ip_endpoint)
