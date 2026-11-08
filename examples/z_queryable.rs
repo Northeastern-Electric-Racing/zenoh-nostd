@@ -38,7 +38,7 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
         builder.connect(endpoint).await?
     };
 
-    spawner.spawn(session_task(session)).unwrap();
+    spawner.spawn(session_task(session).unwrap());
 
     // Because of known limitations, the `Queryable` API (both callbacks and channels) needs the `session` to be static.
     // This may change in the future.

@@ -22,8 +22,8 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
     let config = init_broker_example(&spawner).await;
     let broker = zenoh::broker!(ExampleConfig: config);
 
-    spawner.must_spawn(south(broker, Endpoint::try_from("tcp/127.0.0.1:7444")?));
-    spawner.must_spawn(south(broker, Endpoint::try_from("tcp/127.0.0.1:7445")?));
+    spawner.spawn(south(broker, Endpoint::try_from("tcp/127.0.0.1:7444")?).unwrap());
+    spawner.spawn(south(broker, Endpoint::try_from("tcp/127.0.0.1:7445")?).unwrap());
 
     // `broker.open` defines the gateway of this broker, it will fail if there is nobody listening at that `Endpoint`
 

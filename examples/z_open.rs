@@ -27,7 +27,7 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
         builder.connect(endpoint).await?
     };
 
-    spawner.spawn(session_task(session)).unwrap();
+    spawner.spawn(session_task(session).unwrap());
 
     loop {
         embassy_time::Timer::after(embassy_time::Duration::from_secs(1)).await;

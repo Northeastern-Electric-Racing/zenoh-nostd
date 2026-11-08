@@ -39,7 +39,7 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
         builder.connect(endpoint).await?
     };
 
-    spawner.spawn(session_task(session)).unwrap();
+    spawner.spawn(session_task(session).unwrap());
 
     let ping = session
         .declare_publisher(zenoh::keyexpr::new("test/ping")?)

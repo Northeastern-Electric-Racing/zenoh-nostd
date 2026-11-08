@@ -27,7 +27,7 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
         builder.connect(endpoint).await?
     };
 
-    spawner.spawn(session_task(session)).unwrap();
+    spawner.spawn(session_task(session).unwrap());
 
     let publisher = session
         .declare_publisher(zenoh::keyexpr::new("demo/example")?)

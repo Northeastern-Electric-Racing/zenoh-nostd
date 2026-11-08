@@ -144,10 +144,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
-            .await
-            .map_err(|_| TransportLinkError::OpenTimeout)?
-            .map_err(|e| e.flatten_map::<TransportLinkError>())?;
+        let transport = with_timeout(
+            embassy_time::Duration::try_from(self.open_timeout).unwrap(),
+            connect(),
+        )
+        .await
+        .map_err(|_| TransportLinkError::OpenTimeout)?
+        .map_err(|e| e.flatten_map::<TransportLinkError>())?;
 
         Ok(TransportLink::new(link, transport))
     }
@@ -182,10 +185,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
-            .await
-            .map_err(|_| TransportLinkError::OpenTimeout)?
-            .map_err(|e| e.flatten_map::<TransportLinkError>())?;
+        let transport = with_timeout(
+            embassy_time::Duration::try_from(self.open_timeout).unwrap(),
+            connect(),
+        )
+        .await
+        .map_err(|_| TransportLinkError::OpenTimeout)?
+        .map_err(|e| e.flatten_map::<TransportLinkError>())?;
 
         Ok(TransportLink::new(link, transport))
     }
@@ -223,10 +229,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), connect())
-            .await
-            .map_err(|_| TransportLinkError::OpenTimeout)?
-            .map_err(|e| e.flatten_map::<TransportLinkError>())?;
+        let transport = with_timeout(
+            embassy_time::Duration::try_from(self.open_timeout).unwrap(),
+            connect(),
+        )
+        .await
+        .map_err(|_| TransportLinkError::OpenTimeout)?
+        .map_err(|e| e.flatten_map::<TransportLinkError>())?;
 
         Ok(TransportLink::new(link, transport))
     }
@@ -263,10 +272,13 @@ impl<LinkManager> TransportLinkManager<LinkManager> {
                 .await
         };
 
-        let transport = with_timeout(embassy_time::Duration::try_from(self.open_timeout).unwrap(), listen())
-            .await
-            .map_err(|_| TransportLinkError::OpenTimeout)?
-            .map_err(|e| e.flatten_map::<TransportLinkError>())?;
+        let transport = with_timeout(
+            embassy_time::Duration::try_from(self.open_timeout).unwrap(),
+            listen(),
+        )
+        .await
+        .map_err(|_| TransportLinkError::OpenTimeout)?
+        .map_err(|e| e.flatten_map::<TransportLinkError>())?;
 
         Ok(TransportLink::new(link, transport))
     }

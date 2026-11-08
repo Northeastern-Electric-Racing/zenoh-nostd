@@ -48,7 +48,7 @@ async fn entry(spawner: embassy_executor::Spawner) -> zenoh::ZResult<()> {
         builder.connect(endpoint).await?
     };
 
-    spawner.spawn(session_task(session)).unwrap();
+    spawner.spawn(session_task(session).unwrap());
 
     let querier = session
         .declare_querier(zenoh::keyexpr::new("demo/example/**")?)

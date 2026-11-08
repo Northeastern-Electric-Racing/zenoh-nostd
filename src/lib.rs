@@ -205,8 +205,8 @@ pub async fn init_broker_example(spawner: &embassy_executor::Spawner) -> Example
             net_seed,
         );
 
-        spawner.spawn(connection(wifi_controller)).ok();
-        spawner.spawn(net_task(runner)).ok();
+        spawner.spawn(connection(wifi_controller).unwrap());
+        spawner.spawn(net_task(runner).unwrap());
 
         zenoh::info!("Waiting for link to be up");
         loop {
@@ -292,8 +292,8 @@ pub async fn init_session_example(spawner: &embassy_executor::Spawner) -> Exampl
 
         zenoh::info!("Network stack created");
 
-        spawner.spawn(connection(wifi_controller)).ok();
-        spawner.spawn(net_task(runner)).ok();
+        spawner.spawn(connection(wifi_controller).unwrap());
+        spawner.spawn(net_task(runner).unwrap());
 
         zenoh::info!("Waiting for link to be up");
         loop {

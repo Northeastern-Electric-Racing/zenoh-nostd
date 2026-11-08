@@ -56,7 +56,12 @@ pub struct Session<'res, Config>
 where
     Config: ZSessionConfig,
 {
-    driver: Driver<'res, 'static, <Config::LinkManager as ZLinkManager<'static>>::Link<'res>, Config::Buff>,
+    driver: Driver<
+        'res,
+        'static,
+        <Config::LinkManager as ZLinkManager<'static>>::Link<'res>,
+        Config::Buff,
+    >,
     state: Mutex<NoopRawMutex, SessionState<'res, Config>>,
 }
 
@@ -139,7 +144,7 @@ impl<'res, Config: ZSessionConfig> SessionBuilder<'res, Config> {
     fn finish(
         self,
         mut transport: TransportLink<
-            <Config::LinkManager as ZLinkManager>::Link<'res>,
+            <Config::LinkManager as ZLinkManager<'static>>::Link<'res>,
             Config::Buff,
         >,
     ) -> Session<'res, Config> {
